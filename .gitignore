@@ -1,0 +1,17 @@
+# Environment variables and secrets
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Virtual environment
+.venv/
+venv/
+
+# Pytest
+.pytest_cache/
+
+# PyCharm
+.idea/
