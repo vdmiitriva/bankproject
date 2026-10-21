@@ -15,3 +15,8 @@ venv/
 
 # PyCharm
 .idea/
+
+spending_by_weekday.csv
+
+.coverage
+htmlcov/

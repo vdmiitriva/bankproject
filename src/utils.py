@@ -3,7 +3,6 @@ from pathlib import Path
 
 import pandas as pd
 
-
 PATH = Path(__file__).resolve().parent.parent
 
 
