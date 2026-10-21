@@ -5,14 +5,14 @@ def test_simple_search_description(search_transactions):
     result = simple_search(search_transactions, "магнит")
 
     assert len(result) == 1
-    assert result.iloc[0]["Описание"] == "Магнит"
+    assert result[0]["Описание"] == "Магнит"
 
 
 def test_simple_search_category(search_transactions):
     result = simple_search(search_transactions, "продукты")
 
     assert len(result) == 1
-    assert result.iloc[0]["Категория"] == "Продукты"
+    assert result[0]["Категория"] == "Продукты"
 
 
 def test_simple_search_blank(search_transactions):
@@ -25,14 +25,14 @@ def test_simple_search_both(search_transactions):
     result = simple_search(search_transactions, "поезд")
 
     assert len(result) == 1
-    assert result["Описание"].tolist() == ["Поезд"]
+    assert [item["Описание"] for item in result] == ["Поезд"]
 
 
 def test_simple_search_case_insensitive(search_transactions):
     result = simple_search(search_transactions, "МАГНИТ")
 
     assert len(result) == 1
-    assert result.iloc[0]["Описание"] == "Магнит"
+    assert result[0]["Описание"] == "Магнит"
 
 
 def test_simple_search_returns_multiple_matches(search_transactions):
@@ -43,7 +43,7 @@ def test_simple_search_returns_multiple_matches(search_transactions):
     result = simple_search(transactions, "маг")
 
     assert len(result) == 3
-    assert result["Описание"].tolist() == [
+    assert [item["Описание"] for item in result] == [
         "Магнит",
         "Магнит у дома",
         "Покупка продуктов",
@@ -63,7 +63,7 @@ def test_simple_search_handles_missing_values():
     result = simple_search(transactions, "продукты")
 
     assert len(result) == 1
-    assert result.iloc[0]["Категория"] == "Продукты"
+    assert result[0]["Категория"] == "Продукты"
 
 
 def test_simple_search_does_not_modify_original(search_transactions):
