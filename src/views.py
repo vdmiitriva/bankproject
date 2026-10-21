@@ -1,3 +1,4 @@
+import logging
 import math
 import os
 import time
@@ -9,6 +10,7 @@ from dotenv import load_dotenv
 
 from src.utils import load_user_settings
 
+logger = logging.getLogger(__name__)
 load_dotenv()
 
 
@@ -202,10 +204,22 @@ def get_stock_prices() -> list[dict]:
 def get_main_page(date_time: str, transactions: pd.DataFrame) -> dict:
     filt_transactions = filter_transactions_by_date(transactions, date_time)
 
+    try:
+        currency_rates = get_currency_rates()
+    except RuntimeError:
+        logger.exception("Не удалось получить курсы валют")
+        currency_rates = []
+
+    try:
+        stock_prices = get_stock_prices()
+    except RuntimeError:
+        logger.exception("Не удалось получить цены акций")
+        stock_prices = []
+
     return {
         "greeting": get_greeting(date_time),
         "cards": get_cards_summary(filt_transactions),
         "top_transactions": get_top_transactions(filt_transactions),
-        "currency_rates": get_currency_rates(),
-        "stock_prices": get_stock_prices(),
+        "currency_rates": currency_rates,
+        "stock_prices": stock_prices,
     }

@@ -427,14 +427,68 @@ def test_get_stock_prices_waits_between_requests(monkeypatch):
         lambda *args, **kwargs: MockResponse(),
     )
 
-    sleep_mock = pytest.MonkeyPatch()
-    try:
-        calls = []
-        monkeypatch.setattr(views.time, "sleep", lambda seconds: calls.append(seconds))
+    calls = []
+    monkeypatch.setattr(
+        views.time,
+        "sleep",
+        lambda seconds: calls.append(seconds),
+    )
 
-        result = get_stock_prices()
+    result = get_stock_prices()
 
-        assert len(result) == 2
-        assert calls == [1.2]
-    finally:
-        sleep_mock.undo()
+    assert len(result) == 2
+    assert calls == [1.2]
+
+
+def test_get_main_page_handles_currency_api_error(
+    view_transactions,
+    monkeypatch,
+):
+    from src import views
+
+    monkeypatch.setattr(
+        views,
+        "get_currency_rates",
+        lambda: (_ for _ in ()).throw(RuntimeError("API недоступен")),
+    )
+    monkeypatch.setattr(
+        views,
+        "get_stock_prices",
+        lambda: [{"stock": "AAPL", "price": 200.0}],
+    )
+
+    result = get_main_page(
+        "2021-12-01 12:00:00",
+        view_transactions,
+    )
+
+    assert result["currency_rates"] == []
+    assert result["stock_prices"] == [{"stock": "AAPL", "price": 200.0}]
+    assert result["greeting"] == "Добрый день"
+
+
+def test_get_main_page_handles_stock_api_error(
+    view_transactions,
+    monkeypatch,
+):
+    from src import views
+
+    monkeypatch.setattr(
+        views,
+        "get_currency_rates",
+        lambda: [{"currency": "USD", "rate": 90.0}],
+    )
+    monkeypatch.setattr(
+        views,
+        "get_stock_prices",
+        lambda: (_ for _ in ()).throw(RuntimeError("API недоступен")),
+    )
+
+    result = get_main_page(
+        "2021-12-01 12:00:00",
+        view_transactions,
+    )
+
+    assert result["currency_rates"] == [{"currency": "USD", "rate": 90.0}]
+    assert result["stock_prices"] == []
+    assert result["greeting"] == "Добрый день"
